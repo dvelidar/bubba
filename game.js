@@ -66,27 +66,15 @@ class Actor {
 }
 
 class Level {
-  constructor(grid, actors) {
-    if (grid === undefined) {
-      this.grid = [];
-      this.height = 0;
-      this.width = 0;
-    } else {
-      let maxLength = 0;
-      grid.forEach((row) => maxLength = (row.length > maxLength) ? row.length : maxLength);
+  constructor(grid = [], actors = []) {
+    let maxLength = 0;
+    grid.forEach((row) => maxLength = (row.length > maxLength) ? row.length : maxLength);
 
-      this.grid = grid;
-      this.height = grid.length;
-      this.width = maxLength;
-    }
-
-    if (actors === undefined) {
-      this.actors = [];
-      this.player = undefined;
-    } else {
-      this.actors = actors;
-      this.player = actors.find((a) => a.type === 'player');
-    }
+    this.grid = grid;
+    this.height = grid.length;
+    this.width = maxLength;
+    this.actors = actors;
+    this.player = actors.find((a) => a.type === 'player');
 
     this.status = null;
     this.finishDelay = 1;
@@ -115,38 +103,13 @@ class Level {
       } else if ((pos.y + size.y) > this.height) {
         return 'lava';
       } else {
-        if ((pos.y + size.y) > Math.floor(pos.y + size.y)) {
-          for (let i = Math.floor(pos.x); i < Math.ceil(pos.x + size.x); i++) {
-            if (this.grid[Math.floor(pos.y + size.y)][i] !== undefined) {
-              return this.grid[Math.floor(pos.y + size.y)][i];
+        for (let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
+          for (let j = Math.floor(pos.x); j < Math.ceil(pos.x + size.x); j++) {
+            if (this.grid[i][j] !== undefined) {
+              return this.grid[i][j];
             }
           }
         }
-
-        if ((pos.y) < Math.ceil(pos.y)) {
-          for (let i = Math.floor(pos.x); i < Math.ceil(pos.x + size.x); i++) {
-            if (this.grid[Math.floor(pos.y)][i] !== undefined) {
-              return this.grid[Math.floor(pos.y)][i];
-            }
-          }
-        }
-
-        if ((pos.x + size.x) > Math.floor(pos.x + size.x)) {
-          for (let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
-            if (this.grid[i][Math.floor(pos.x + size.x)] !== undefined) {
-              return this.grid[i][Math.floor(pos.x + size.x)];
-            }
-          }
-        }
-
-        if ((pos.y) < Math.ceil(pos.y)) {
-          for (let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
-            if (this.grid[i][Math.floor(pos.x)] !== undefined) {
-              return this.grid[i][Math.floor(pos.x)];
-            }
-          }
-        }
-        return this.grid[Math.floor(pos.y)][Math.floor(pos.x)];
       }
     } else {
       throw (Error('Переданный параметр не является объектом типа Vector'));
@@ -160,11 +123,7 @@ class Level {
   }
 
   noMoreActors(type) {
-    if (this.actors.findIndex((a) => a.type === type) !== -1) {
-      return false;
-    } else {
-      return true;
-    }
+    return (this.actors.findIndex((a) => a.type === type) === -1);
   }
 
   playerTouched(type, actor) {
