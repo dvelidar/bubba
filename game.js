@@ -7,11 +7,11 @@ class Vector {
   }
 
   plus(vector) {
-    if (vector instanceof Vector) {
-      return new Vector(vector.x + this.x, vector.y + this.y);
-    } else {
+    if (!(vector instanceof Vector)) {
       throw (Error('Переданный параметр не является вектором'));
     }
+
+    return new Vector(vector.x + this.x, vector.y + this.y);
   }
 
   times(multiplier) {
@@ -21,13 +21,13 @@ class Vector {
 
 class Actor {
   constructor(pos = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
-    if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
-      this.pos = pos;
-      this.size = size;
-      this.speed = speed;
-    } else {
+    if (!(pos instanceof Vector && size instanceof Vector && speed instanceof Vector)) {
       throw (Error('Переданный параметр не является объектом типа Vector'));
     }
+
+    this.pos = pos;
+    this.size = size;
+    this.speed = speed;
   }
 
   act() {}
@@ -53,15 +53,11 @@ class Actor {
   }
 
   isIntersect(actor) {
-    if (actor instanceof Actor) {
-      if (actor !== this && actor.left < this.right && actor.right > this.left && actor.bottom > this.top && actor.top < this.bottom) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+    if (!(actor instanceof Actor)) {
       throw (Error('Переданный параметр не является объектом типа Actor'));
     }
+
+    return (actor !== this && actor.left < this.right && actor.right > this.left && actor.bottom > this.top && actor.top < this.bottom);
   }
 }
 
@@ -81,44 +77,41 @@ class Level {
   }
 
   isFinished() {
-    if (this.status !== null && this.finishDelay <0) {
-      return true;
-    } else {
-      return false;
-    }
+    return (this.status !== null && this.finishDelay <0);
   }
 
   actorAt(actor) {
-    if (actor instanceof Actor) {
-      return this.actors.find((a) => a.isIntersect(actor));  
-    } else {
+    if (!(actor instanceof Actor)) {
       throw (Error('Переданный параметр не является объектом типа Actor'));
     }
+
+    return this.actors.find((a) => a.isIntersect(actor));
   }
 
   obstacleAt(pos, size) {
-    if (pos instanceof Vector && size instanceof Vector) {
-      if (pos.y < 0 || pos.x < 0 || (pos.x + size.x) > this.width) {
-        return 'wall';
-      } else if ((pos.y + size.y) > this.height) {
-        return 'lava';
-      } else {
-        for (let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
-          for (let j = Math.floor(pos.x); j < Math.ceil(pos.x + size.x); j++) {
-            if (this.grid[i][j] !== undefined) {
-              return this.grid[i][j];
-            }
+    if (!(pos instanceof Vector && size instanceof Vector)) {
+      throw (Error('Переданный параметр не является объектом типа Vector'));
+    }
+
+    if (pos.y < 0 || pos.x < 0 || (pos.x + size.x) > this.width) {
+      return 'wall';
+    } else if ((pos.y + size.y) > this.height) {
+      return 'lava';
+    } else {
+      for (let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
+        for (let j = Math.floor(pos.x); j < Math.ceil(pos.x + size.x); j++) {
+          if (this.grid[i][j] !== undefined) {
+            return this.grid[i][j];
           }
         }
       }
-    } else {
-      throw (Error('Переданный параметр не является объектом типа Vector'));
     }
   }
 
   removeActor(actor) {
-    if (this.actors.indexOf(actor) !== -1) {
-      this.actors.splice(this.actors.indexOf(actor),1);
+    let actorPos = this.actors.indexOf(actor);
+    if (actorPos !== -1) {
+      this.actors.splice(actorPos, 1);
     } 
   }
 
@@ -158,9 +151,6 @@ class LevelParser {
       case '!' :
         return 'lava';
         break;
-
-      default :
-        return undefined;
     }
   }
 
